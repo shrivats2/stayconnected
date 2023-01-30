@@ -23,7 +23,7 @@ const registerSchema = yup.object().shape({
   password: yup.string().required("required"),
   location: yup.string().required("required"),
   occupation: yup.string().required("required"),
-  picture: yup.string().required("required"),
+  picture: yup.string().required,
 });
 
 const loginSchema = yup.object().shape({
@@ -61,10 +61,11 @@ const Form = () => {
     for (let value in values) {
       formData.append(value, values[value]);
     }
+    console.log(values);
     formData.append("picturePath", values.picture.name);
 
     const savedUserResponse = await fetch(
-      "/auth/register", 
+      "http://localhost:3001/auth/register",
       {
         method: "POST",
         body: formData,
@@ -79,7 +80,7 @@ const Form = () => {
   };
 
   const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("/auth/login", {
+    const loggedInResponse = await fetch("http://localhost:3001/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
