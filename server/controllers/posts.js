@@ -1,11 +1,12 @@
 import Post from "../models/Post.js";
 import User from "../models/User.js";
 
-
 export const createPost = async (req, res) => {
   try {
+    console.log(req.body);
     const { userId, description, picturePath } = req.body;
     const user = await User.findById(userId);
+    console.log(user);
     const newPost = new Post({
       userId,
       firstName: user.firstName,
@@ -25,7 +26,6 @@ export const createPost = async (req, res) => {
     res.status(409).json({ message: err.message });
   }
 };
-
 
 export const getFeedPosts = async (req, res) => {
   try {

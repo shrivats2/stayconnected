@@ -24,6 +24,7 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "state";
+import axios from "axios";
 
 const MyPostWidget = ({ picturePath }) => {
   const dispatch = useDispatch();
@@ -38,29 +39,57 @@ const MyPostWidget = ({ picturePath }) => {
   const medium = palette.neutral.medium;
 
   const handlePost = async () => {
-    const formData = new FormData();
-    formData.append("userId", _id);
-    formData.append("description", post);
+    const sendData = {
+      userId: _id,
+      description: post,
+    };
+
     if (image) {
-      formData.append("picture", image);
-      formData.append("picturePath", image.name);
+      try {
+        const cloudinaryData = await uploadToCloudinary(image);
+        sendData.picturePath = cloudinaryData.secure_url;
+      } catch (error) {
+        console.error("Error uploading to Cloudinary:", error);
+        return;
+      }
     }
 
-    const response = await fetch(`/posts`, {
+    const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/posts`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(sendData),
     });
+
     let posts = await response.json();
     posts = posts.sort((a, b) => {
-      if (a.updatedAt< b.updatedAt) {
+      if (a.updatedAt < b.updatedAt) {
         return 1;
       }
       return -1;
     });
+
     dispatch(setPosts({ posts }));
     setImage(null);
     setPost("");
+  };
+
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    const cloudinaryUploadPreset =
+      process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+    const cloudinaryFolder = process.env.REACT_APP_CLOUDINARY_FOLDER;
+    const cloudinaryURL = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/upload`;
+
+    formData.append("file", file);
+    formData.append("upload_preset", cloudinaryUploadPreset);
+    formData.append("folder", cloudinaryFolder);
+
+    const response = await axios.post(cloudinaryURL, formData);
+
+    return response.data;
   };
 
   return (

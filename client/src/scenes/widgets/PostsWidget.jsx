@@ -9,23 +9,23 @@ const PostsWidget = ({ userId, isProfile = false }) => {
   const token = useSelector((state) => state.token);
 
   const getPosts = async () => {
-    const response = await fetch("/posts", {
+    const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/posts`, {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
     let data = await response.json();
     data = data.sort((a, b) => {
-        if (a.updatedAt< b.updatedAt) {
-          return 1;
-        }
-        return -1;
-      });
+      if (a.updatedAt < b.updatedAt) {
+        return 1;
+      }
+      return -1;
+    });
     dispatch(setPosts({ posts: data }));
   };
 
   const getUserPosts = async () => {
     const response = await fetch(
-      `/posts/${userId}/posts`,
+      `${process.env.REACT_APP_SERVER_URL}/posts/${userId}/posts`,
       {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
@@ -34,11 +34,11 @@ const PostsWidget = ({ userId, isProfile = false }) => {
     let data = await response.json();
 
     data = data.sort((a, b) => {
-        if (a.updatedAt< b.updatedAt) {
-          return 1;
-        }
-        return -1;
-      });
+      if (a.updatedAt < b.updatedAt) {
+        return 1;
+      }
+      return -1;
+    });
     dispatch(setPosts({ posts: data }));
   };
 

@@ -23,7 +23,11 @@ const registerSchema = yup.object().shape({
   password: yup.string().required("required"),
   location: yup.string().required("required"),
   occupation: yup.string().required("required"),
-  picture: yup.string().required,
+  picture: yup
+    .string()
+    .default(
+      "https://res.cloudinary.com/da7n3lkb1/image/upload/v1705402442/stayconnected/dqpd1rtogfhi8bv7dr1j.jpg"
+    ),
 });
 
 const loginSchema = yup.object().shape({
@@ -38,7 +42,8 @@ const initialValuesRegister = {
   password: "",
   location: "",
   occupation: "",
-  picture: "",
+  picture:
+    "https://res.cloudinary.com/da7n3lkb1/image/upload/v1705402442/stayconnected/dqpd1rtogfhi8bv7dr1j.jpg",
 };
 
 const initialValuesLogin = {
@@ -61,14 +66,23 @@ const Form = () => {
     for (let value in values) {
       formData.append(value, values[value]);
     }
-    console.log(values);
-    formData.append("picturePath", values.picture.name);
+    formData.append(
+      "picturePath",
+      values.picture?.name ||
+        "https://res.cloudinary.com/da7n3lkb1/image/upload/v1705402442/stayconnected/dqpd1rtogfhi8bv7dr1j.jpg"
+    );
+
+    var object = {};
+    formData.forEach((value, key) => (object[key] = value));
 
     const savedUserResponse = await fetch(
-      "/auth/register",
+      `${process.env.REACT_APP_SERVER_URL}/auth/register`,
       {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(object),
       }
     );
     const savedUser = await savedUserResponse.json();
@@ -80,11 +94,14 @@ const Form = () => {
   };
 
   const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
+    const loggedInResponse = await fetch(
+      `${process.env.REACT_APP_SERVER_URL}/auth/login`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      }
+    );
     const loggedIn = await loggedInResponse.json();
     onSubmitProps.resetForm();
     if (loggedIn) {
@@ -203,6 +220,17 @@ const Form = () => {
                             <EditOutlinedIcon />
                           </FlexBetween>
                         )}
+                        {/* {!values.picture && (
+                          <img
+                            src={initialValuesRegister.picture}
+                            alt="Default Cloudinary Image"
+                            style={{
+                              maxWidth: "100%",
+                              maxHeight: "200px",
+                              margin: "10px 0",
+                            }}
+                          />
+                        )} */}
                       </Box>
                     )}
                   </Dropzone>

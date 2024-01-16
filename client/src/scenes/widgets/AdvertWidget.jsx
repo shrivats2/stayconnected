@@ -20,7 +20,7 @@ const AdvertWidget = () => {
         width="100%"
         height="auto"
         alt="advert"
-        src="/assets/info4.jpeg"
+        src="https://res.cloudinary.com/da7n3lkb1/image/upload/v1705402444/stayconnected/qjzrrwnfrlxffi1cw6kq.jpg"
         style={{ borderRadius: "0.75rem", margin: "0.75rem 0" }}
       />
       <FlexBetween>
